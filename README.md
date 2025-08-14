@@ -1,5 +1,5 @@
 # LYHcoding.github.io
-Yuanhao Li’s Personal Website：[LYHcoding.github.io](LYHcoding.github.io)
+Yuanhao Li’s Personal Website：[LYHcoding.github.io](https://lyhcoding.github.io/)
 
 ---
 
