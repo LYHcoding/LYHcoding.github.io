@@ -8,5 +8,5 @@ The homepage display：
 ![Homepage](index_files/main-pages.jpg)
 
 ---
-PS:
-这是项目--000
+PS: 
+    项目000 — github personal pages. "index.html" file is the main page of the website, which contains information and access count, etc.

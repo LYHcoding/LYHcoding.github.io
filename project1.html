@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">	<!-- <html lang="zh-CN"> -->
+<head>
+	<!--This line will work only if your website is hosted under a graphics.cs.cmu.edu or imaging.cs.cmu.edu domain.-->
+	<!-- <meta charset="utf-8" /> -->
+	<script src="https://kit.fontawesome.com/3058f11e8e.js" crossorigin="anonymous"></script>
+	<link rel="icon" href="index_files/favicon.png" type="image/png">
+	<meta name="description" content="Your name">
+	<meta name="keywords" content="Your keywords">
+	<meta http-equiv="content-type" content="text/html; charset=utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link href="index_files/style.css" rel="stylesheet" type="text/css">
+	<title>Yuanhao Li</title>
+</head>
+
+<body>
+	<header>
+		<h1>Project1</h1>
+	</header>
+	<main>
+	<section id="other">
+		<h2>Other content</h2>
+		<p>Updated: August 15, 2025.</p>
+	</section>
+
+	<section id="count">
+		<h2>Count</h2>
+		<p>Page views(PV): &nbsp;&nbsp;<a id="pagePV">--</a></p>
+		<p>Site visits(SV): &nbsp;&nbsp;<a id="sitePV">--</a></p>
+		<p>PS: Pure static implementation, only accumulated locally in the current browser.</p>
+	</section>
+	</main>
+
+	<script>
+		(function () {
+			// 安全获取/设置 localStorage，兼容隐私模式或禁用情况
+			function safeGet(key, defVal) {
+				try {
+					var v = localStorage.getItem(key);
+				return v === null ? defVal : JSON.parse(v);
+				} catch (e) { return defVal; }
+			}
+			function safeSet(key, val) {
+				try { localStorage.setItem(key, JSON.stringify(val)); } catch (e) {}
+			}
+		  	// 以路径作为“本页”唯一键；以固定键保存“全站”PV
+			var pageKey = "pv:page:" + location.pathname;
+			var siteKey = "pv:site:__all__";
+			var pagePV = safeGet(pageKey, 0) + 1;
+			var sitePV = safeGet(siteKey, 0) + 1;
+			safeSet(pageKey, pagePV);
+			safeSet(siteKey, sitePV);
+			// 渲染到页面
+			document.getElementById("pagePV").textContent = pagePV;
+			document.getElementById("sitePV").textContent = sitePV;
+		})();
+	</script>
+
+	<footer>
+		<hr>
+		<ul id="personal">
+			<li><a href="index.html"><i class="fa fa-envelope fa-sm fa-fw"></i>&nbsp;MainPage</a></li>
+			<li><a href="project1.html"><i class="fa fa-brands fa-orcid fa-sm fa-fw"></i>&nbsp;Project1</a></li>
+		</ul>
+	</footer>
+</body>
+</html>
+
