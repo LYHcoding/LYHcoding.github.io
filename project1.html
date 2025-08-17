@@ -29,41 +29,16 @@
 	<main>
 		<section id="other">
 			<h2>Other content</h2>
-			<p>Updated: August 15, 2025.</p>
+			<p>Updated: August 18, 2025.</p>
 		</section>
 
 		<section id="count">
 			<h2>Count</h2>
 			<p>Page views(PV): &nbsp;&nbsp;<a id="pagePV">--</a></p>
 			<p>Site visits(SV): &nbsp;&nbsp;<a id="sitePV">--</a></p>
-			<p>PS: Pure static implementation, only accumulated locally in the current browser.</p>
+			<p>PS: Using Google Analytics counting.</p>
 		</section>
 	</main>
-
-	<script>
-		(function () {
-			// 安全获取/设置 localStorage，兼容隐私模式或禁用情况
-			function safeGet(key, defVal) {
-				try {
-					var v = localStorage.getItem(key);
-				return v === null ? defVal : JSON.parse(v);
-				} catch (e) { return defVal; }
-			}
-			function safeSet(key, val) {
-				try { localStorage.setItem(key, JSON.stringify(val)); } catch (e) {}
-			}
-		  	// 以路径作为“本页”唯一键；以固定键保存“全站”PV
-			var pageKey = "pv:page:" + location.pathname;
-			var siteKey = "pv:site:__all__";
-			var pagePV = safeGet(pageKey, 0) + 1;
-			var sitePV = safeGet(siteKey, 0) + 1;
-			safeSet(pageKey, pagePV);
-			safeSet(siteKey, sitePV);
-			// 渲染到页面
-			document.getElementById("pagePV").textContent = pagePV;
-			document.getElementById("sitePV").textContent = sitePV;
-		})();
-	</script>
 
 	<footer>
 		<hr>
@@ -74,4 +49,3 @@
 	</footer>
 </body>
 </html>
-
