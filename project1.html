@@ -10,7 +10,7 @@
 	<meta http-equiv="content-type" content="text/html; charset=utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link href="index_files/style.css" rel="stylesheet" type="text/css">
-	<title>Yuanhao Li</title>
+	<title>Access Count</title>
 </head>
 
 <!-- Google tag (gtag.js) -->
@@ -24,7 +24,7 @@
 
 <body>
 	<header>
-		<h1>Project1</h1>
+		<h1>Project 1: Access Count</h1>
 	</header>
 	<main>
 		<section id="other">
@@ -36,7 +36,8 @@
 			<h2>Count</h2>
 			<p>Page views(PV): &nbsp;&nbsp;<a id="pagePV">--</a></p>
 			<p>Site visits(SV): &nbsp;&nbsp;<a id="sitePV">--</a></p>
-			<p>PS: Using Google Analytics counting.</p>
+			<div id="chart-container"></div>
+			<p style="font-size:14px;color:gray">PS: Using Google Analytics counting. Data powered by Google Analytics 4</p>
 		</section>
 	</main>
 
@@ -47,5 +48,47 @@
 			<li><a href="project1.html"><i class="fa fa-brands fa-orcid fa-sm fa-fw"></i>&nbsp;Project1</a></li>
 		</ul>
 	</footer>
+
+	<!-- Load Google Analytics Embed API -->
+	<script src="https://apis.google.com/js/platform.js"></script>
+	<script src="https://apis.google.com/js/client:platform.js"></script>
+	<script src="https://ga-dev-tools.web.app/public/embed-api/components/view-selector2.js"></script>
+	<script src="https://ga-dev-tools.web.app/public/embed-api/components/date-range-selector.js"></script>
+	<script src="https://ga-dev-tools.web.app/public/embed-api/components/active-users.js"></script>
+
+	<script>
+		gapi.analytics.ready(function() {
+			// 授权（这里需要替换成你的 OAuth Client ID）
+			gapi.analytics.auth.authorize({
+				container: 'embed-api-auth-container',
+				clientid: '691447500712-rrl8pe6n26nbgn0nq8bblt0gqjndieu4.apps.googleusercontent.com'
+			});
+			// 选择 GA4 属性视图
+			var viewSelector = new gapi.analytics.ViewSelector2({
+				container: 'chart-container'
+			})
+			.execute();
+			// 绘制折线图：每天 PV
+			var timeline = new gapi.analytics.googleCharts.DataChart({
+				query: {
+					metrics: 'ga:pageviews',
+					dimensions: 'ga:date',
+					'start-date': '30daysAgo',
+					'end-date': 'today'
+				},
+				chart: {
+					container: 'chart-container',
+					type: 'LINE',
+					options: {
+						width: '100%'
+					}
+				}
+			});
+			viewSelector.on('viewChange', function(data) {
+				timeline.set({query: {ids: data.ids}}).execute();
+			});
+		});
+	</script>
 </body>
 </html>
+
