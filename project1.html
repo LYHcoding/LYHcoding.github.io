@@ -5,15 +5,12 @@
 	<!-- <meta charset="utf-8" /> -->
 	<script src="https://kit.fontawesome.com/3058f11e8e.js" crossorigin="anonymous"></script>
 	<link rel="icon" href="index_files/favicon.png" type="image/png">
-	<meta name="description" content="Your name">
-	<meta name="keywords" content="Your keywords">
+	<meta name="description" content="GA4 Analytics Visualization">
+	<meta name="keywords" content="Access Count, GA4">
 	<meta http-equiv="content-type" content="text/html; charset=utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link href="index_files/style.css" rel="stylesheet" type="text/css">
 	<title>Access Count</title>
-	<script src="https://accounts.google.com/gsi/client" async defer></script>
-	<script src="https://apis.google.com/js/api.js"></script>
-	<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 	<script src="https://accounts.google.com/gsi/client" async defer></script>
 </head>
 
@@ -29,12 +26,10 @@
 
 		<section id="count">
 			<h2>Count</h2>
-			<p>Page views(PV): &nbsp;&nbsp;<a id="pagePV">--</a></p>
-			<p>Site visits(SV): &nbsp;&nbsp;<a id="sitePV">--</a></p>
-			<h2>GA4 Analytics 可视化</h2>
-			<div id="g_id_signin"></div>
-			<canvas id="chart" width="600" height="300"></canvas>
-			<p style="font-size:14px;color:gray">PS: Using Google Analytics counting. Data powered by Google Analytics 4</p>
+			<button id="authorize_button">Authorize with Google</button>
+			<p>Page views (PV): &nbsp;&nbsp;<span id="pagePV">--</span></p>
+			<p>Site visits (SV): &nbsp;&nbsp;<span id="sitePV">--</span></p>
+			<p style="font-size:14px;color:gray">PS: Using Google Analytics counting. Data powered by Google Analytics 4 API.</p>
 		</section>
 	</main>
 
@@ -52,65 +47,79 @@
 		const SCOPES = "https://www.googleapis.com/auth/analytics.readonly";
 		// ⚠️ 替换为你的 GA4 property ID (格式类似：123456789)
 		const PROPERTY_ID = "501354848";
-		let accessToken;
-		// Step 1: GIS 初始化
-		function gisInit() {
-			google.accounts.oauth2.initTokenClient({
+		let tokenClient;
+		let gapiInited = false;
+		let gisInited = false;
+		// 1. 加载 Google API
+		function gapiLoaded() {
+			gapi.load('client', initializeGapiClient);
+		}
+		async function initializeGapiClient() {
+			await gapi.client.init({
+				discoveryDocs: ["https://analyticsdata.googleapis.com/$discovery/rest?version=v1"],
+			});
+			gapiInited = true;
+		}
+		function gisLoaded() {
+			tokenClient = google.accounts.oauth2.initTokenClient({
 				client_id: CLIENT_ID,
 				scope: SCOPES,
-				callback: (response) => {
-				accessToken = response.access_token;
-				console.log("Access Token:", accessToken);
-				queryGAData();
-				}
-			}).requestAccessToken();
-		}
-		// Step 2: 按钮登录（Google 提供的登录按钮）
-		window.onload = function() {
-			google.accounts.id.renderButton(
-				document.getElementById("g_id_signin"),
-				{ theme: "outline", size: "large" }
-			);
-			document.getElementById("g_id_signin").addEventListener("click", gisInit);
-		}
-		// Step 3: 调用 GA4 Data API
-		async function queryGAData() {
-			const url = `https://analyticsdata.googleapis.com/v1beta/properties/${PROPERTY_ID}:runReport`;
-			const body = {
-				dateRanges: [{ startDate: "7daysAgo", endDate: "today" }],
-				metrics: [{ name: "activeUsers" }],
-				dimensions: [{ name: "date" }]
-			};
-			const response = await fetch(url, {
-				method: "POST",
-				headers: {
-				"Authorization": `Bearer ${accessToken}`,
-				"Content-Type": "application/json"
-				},
-				body: JSON.stringify(body)
+				callback: handleAuthResult, // 授权成功后的回调
 			});
-			const data = await response.json();
-			console.log("GA4 数据:", data);
-			renderChart(data);
+			gisInited = true;
+			document.getElementById("authorize_button").disabled = false;
 		}
-		// Step 4: 用 Chart.js 可视化
-		function renderChart(data) {
-			const labels = data.rows.map(row => row.dimensionValues[0].value);
-			const values = data.rows.map(row => row.metricValues[0].value);
-			new Chart(document.getElementById("chart"), {
-				type: "line",
-				data: {
-				labels: labels,
-				datasets: [{
-					label: "活跃用户数",
-					data: values,
-					borderColor: "blue",
-					fill: false
-				}]
+		// 2. 授权按钮点击
+		document.getElementById("authorize_button").onclick = () => {
+			if (!gisInited || !gapiInited) {
+				alert("Google API 未初始化完成");
+				return;
+			}
+			tokenClient.requestAccessToken();
+		};
+		// 3. 处理授权结果
+		function handleAuthResult(tokenResponse) {
+			if (tokenResponse && tokenResponse.access_token) {
+				queryGA4Data(tokenResponse.access_token);
+			} else {
+				console.error("授权失败", tokenResponse);
+			}
+		}
+		// 4. 调用 GA4 Data API
+		async function queryGA4Data() {
+			try {
+				const response = await gapi.client.analyticsdata.properties.runReport({
+					property: `properties/${PROPERTY_ID}`,
+					requestBody: {
+						dimensions: [{ name: "date" }],
+						metrics: [
+							{ name: "screenPageViews" }, // PV
+							{ name: "totalUsers" }       // SV
+						],
+						dateRanges: [{ startDate: "7daysAgo", endDate: "today" }]
+					}
+				});
+				if (response.result && response.result.rows) {
+					let totalPV = 0;
+					let totalSV = 0;
+					response.result.rows.forEach(row => {
+						totalPV += parseInt(row.metricValues[0].value);
+						totalSV += parseInt(row.metricValues[1].value);
+					});
+					document.getElementById("pagePV").innerText = totalPV;
+					document.getElementById("sitePV").innerText = totalSV;
+				} else {
+					console.warn("没有返回数据", response);
 				}
-			});
+			} catch (err) {
+				console.error("API 调用失败", err);
+			}
 		}
 	</script>
+
+	<!-- 引入 gapi -->
+	<script async defer src="https://apis.google.com/js/api.js" onload="gapiLoaded()"></script>
+	<script async defer onload="gisLoaded()"></script>
 </body>
 </html>
 
