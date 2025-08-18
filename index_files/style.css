@@ -109,12 +109,6 @@ a:focus, a:hover, a:active {
 	margin-right: 2em;
 }
 
-#ecust {
-	float: left;
-	margin-left: 2em;
-	margin-right: 2em;
-}
-
 /* Navigation lists */
 nav > ul {
 	margin-left: 0;
@@ -236,4 +230,32 @@ figure.gallery figcaption, figure.person figcaption {
 /* Footer material */
 footer {
 	font-style: italic;
+}
+
+/* update style */
+#ecust {
+	float: left;
+	margin-left: 2em;
+	margin-right: 2em;
+}
+
+#ps	{
+    font-size:14px;
+	color:gray
+}
+
+#personal.tag {
+    display: flex;
+	justify-content: space-between;
+	align-items: center;
+}
+/* 左侧链接布局 */
+#personal .left-links {
+	display: flex;
+	gap: 15px;
+}
+/* 右侧 GitHub 徽章 */
+#personal .right-badges a {
+	margin-left: 10px;
+	margin-right: 10px;
 }
