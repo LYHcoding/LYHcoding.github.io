@@ -12,3 +12,5 @@ The homepage display：
 ---
 PS: 
     项目000 — github personal pages. "index.html" file is the main page of the website, which contains information and access count, etc.
+
+测试 git remote link github resp.
